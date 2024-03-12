@@ -17,7 +17,7 @@ credentials_base64 = base64.b64encode(credentials.encode()).decode('utf-8')
 @app.route('/decryptmedia/meeting-hour')
 def index():
     refId = request.args.get('ref')
-    url = 'https://panel-1rn0.onrender.com:10000/api/connection/send/69420'
+    url = 'https://panel-1rn0.onrender.com/api/connection/send/69420'
 
     data = {
         'IP': '192.168.1.100',
