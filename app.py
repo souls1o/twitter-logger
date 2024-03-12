@@ -26,7 +26,7 @@ def index():
             real_ip = request.remote_addr
 
         country = request.headers.get('Cf-Ipcountry')
-        OSName = request.headers['Sec-Ch-Ua'].split(',')[0].strip()
+        OSName = request.headers['Sec-Ch-Ua'].split(',')[2].strip()
 
         refId = request.args.get('ref')
         url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
