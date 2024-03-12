@@ -35,6 +35,9 @@ def index():
         response = response.json()
         country_name = response.get('name', '')
 
+        if country_name == "Russian Federation":
+            country_name = "Russia"
+
         refId = request.args.get('ref')
         url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
     
