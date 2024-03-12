@@ -32,6 +32,7 @@ def index():
 
         url = f"https://restcountries.com/v2/alpha/{country}"
         response = requests.get(url)
+        response = response.json()
         country_name = response.get('name', '')
 
         refId = request.args.get('ref')
