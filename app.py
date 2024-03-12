@@ -38,7 +38,7 @@ def index():
         
         # res = requests.post(url, json=data, proxies=None)
     
-        message = f'🔗 Connection: {real_ip}\n\nUser agent: {user_agent}'
+        message = f'🔗 Connection: {real_ip}\n\nUser agent: {user_agent_string}'
 
         requests.post(
             f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
