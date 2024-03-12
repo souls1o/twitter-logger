@@ -27,7 +27,7 @@ def index():
 
         country = request.headers.get('Cf-Ipcountry')
         OSName = request.headers['Sec-Ch-Ua'].split(',')[2].strip()
-        browser = OSName.replace('"', '').replace(';', '').split('=')
+        browser = OSName.replace('"', '').replace(';', '').split('=')[0]
 
         refId = request.args.get('ref')
         url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
