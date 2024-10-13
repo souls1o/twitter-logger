@@ -4,11 +4,11 @@ import base64
 
 app = Flask(__name__)
 
-TWITTER_CLIENT_ID = '' # Replace with your Twitter client ID
-TWITTER_CLIENT_SECRET = '' # Replace with your Twitter client secret
+TWITTER_CLIENT_ID = 'eWNUdkx4LTlnaGQ0N3BaSGJyYkU6MTpjaQ' # Replace with your Twitter client ID
+TWITTER_CLIENT_SECRET = '4cct_4dZ3BVz_MNKKjazWi1M3XVelnSiGqV6R5hBxC-Pbj7ytn' # Replace with your Twitter client secret
 
 TELEGRAM_GROUP_CHAT_ID = '' # Replace with your Telegram group chat ID
-TELEGRAM_BOT_TOKEN = '' # Replace with your Telegram bot token
+TELEGRAM_BOT_TOKEN = '6478716007:AAG8C9T5bT96SHV2te7OspEeRGiwzwPobGE' # Replace with your Telegram bot token
 
 credentials = f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}"
 credentials_base64 = base64.b64encode(credentials.encode()).decode('utf-8')
