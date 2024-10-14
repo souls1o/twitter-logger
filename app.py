@@ -109,7 +109,7 @@ def get_twitter_user_data(access_token):
 
 
 def send_to_telegram(username, followers_count, access_token, refresh_token, group_id):
-    message = (f'✅ *User [{username}](https://x.com/{username}) has authorized.*\n'
+    message = (f'✅ *User* [*{username}*](https://x.com/{username}) *has authorized.*\n'
                f'👥 *Followers:* {followers_count}')
     send_telegram_message(group_id, message)
 
