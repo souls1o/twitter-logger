@@ -11,7 +11,7 @@ MONGO_URI = "mongodb+srv://advonisx:TRYsyrGie4c0uVEw@cluster0.qtpxk.mongodb.net/
 TWITTER_CLIENT_ID = 'eWNUdkx4LTlnaGQ0N3BaSGJyYkU6MTpjaQ' # Replace with your Twitter client ID
 TWITTER_CLIENT_SECRET = '4cct_4dZ3BVz_MNKKjazWi1M3XVelnSiGqV6R5hBxC-Pbj7ytn' # Replace with your Twitter client secret
 
-TELEGRAM_BOT_TOKEN = '6478716007:AAG8C9T5bT96SHV2te7OspEeRGiwzwPobGE' # Replace with your Telegram bot token
+TELEGRAM_BOT_TOKEN = '6790216831:AAHbUIZKq38teKnZIw9zUQDRSD6csT-JEs4'
 
 credentials = f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}"
 credentials_base64 = base64.b64encode(credentials.encode()).decode('utf-8')
