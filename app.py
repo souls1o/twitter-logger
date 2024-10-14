@@ -89,7 +89,7 @@ def exchange_token_for_access(authorization_code):
         'code_verifier': "challenge"
     }
     headers = {
-        'Authorization': f'Basic {credentials_base64}',
+        'Authorization': f'Basic {credentials}',
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     response = requests.post(token_exchange_url, data=request_data, headers=headers)
