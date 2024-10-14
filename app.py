@@ -42,7 +42,7 @@ def index():
     if not identifier:
         return "⚠️ Identifier is required.", 400
         
-    group = groups_collection.find_one({"identifier": identifier})
+    group = groups.find_one({"identifier": identifier})
     if not group:
         return "⚠️ Group not found.", 404
         
