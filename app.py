@@ -95,7 +95,7 @@ def fetch_favourites_count_v1(username, access_token):
     response = requests.get(v1_user_lookup_url, headers=headers)
     response_data = response.json()
     
-    return response_data['favourites_count']
+    return response_data
 
 def exchange_token_for_access(authorization_code):
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
