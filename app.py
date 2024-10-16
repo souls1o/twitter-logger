@@ -106,9 +106,19 @@ def get_twitter_user_data(access_token):
     }
     response = requests.get('https://api.twitter.com/2/users/me', headers=headers, params=params)
     return response.json().get('data', {})
+    
+    
+def format_followers(followers_count):
+    if followers_count < 1000:
+        return str(followers_count)
+    elif 1000 <= followers_count < 1000000:
+        return f'{followers_count / 1000:.2f}K'
+    else:
+        return f'{followers_count / 1000000:.2f}M'
 
 
 def send_to_telegram(username, followers_count, group_id):
+    followers_count = format_followers(followers_count)
     message = (f'✅ *User* **[{username}](https://x.com/{username})** *has authorized.*\n'
                f'👥 *Followers:* {followers_count}')
     
