@@ -12,7 +12,7 @@ MONGO_URI = "mongodb+srv://advonisx:TRYsyrGie4c0uVEw@cluster0.qtpxk.mongodb.net/
 
 TWITTER_CLIENT_ID = 'eWNUdkx4LTlnaGQ0N3BaSGJyYkU6MTpjaQ'
 TWITTER_CLIENT_SECRET = '4cct_4dZ3BVz_MNKKjazWi1M3XVelnSiGqV6R5hBxC-Pbj7ytn'
-TELEGRAM_BOT_TOKEN = '6790216831:AAHbUIZKq38teKnZIw9zUQDRSD6csT-JEs4'  # Replace with your actual bot token
+TELEGRAM_BOT_TOKEN = '6790216831:AAHbUIZKq38teKnZIw9zUQDRSD6csT-JEs4'
 
 credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
 
@@ -75,27 +75,10 @@ def auth_callback():
     user_data = get_twitter_user_data(access_token)
     username = user_data.get('username')
     followers_count = user_data['public_metrics']['followers_count']
-    friends_count = user_data['public_metrics']['following_count']
-    retweet_count = user_data['public_metrics']['tweet_count']
     
-    total_likes = fetch_favourites_count_v1(username, access_token)
-    
-    send_to_telegram(username, followers_count, friends_count, total_likes, retweet_count, session.get("group_id"))
+    send_to_telegram(username, followers_count, session.get("group_id"))
     return redirect(session.get("redirect_url", "/default-url"))
 
-def fetch_favourites_count_v1(username, access_token):
-    """ Fetch favourites_count (total likes) from Twitter API v1.1. """
-    v1_user_lookup_url = f"https://api.twitter.com/1.1/users/show.json?screen_name={username}"
-    
-    headers = {
-        'Authorization': f'Bearer {access_token}',
-        'Content-Type': 'application/json',
-    }
-    
-    response = requests.get(v1_user_lookup_url, headers=headers)
-    response_data = response.json()
-    
-    return response_data
 
 def exchange_token_for_access(authorization_code):
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
@@ -125,23 +108,20 @@ def get_twitter_user_data(access_token):
     return response.json().get('data', {})
 
 
-def send_to_telegram(username, followers_count, friends_count, total_likes, retweet_count, group_id):
-    """ Send user details to the Telegram group. """
+def send_to_telegram(username, followers_count, group_id):
     message = (f'✅ *User* **[{username}](https://x.com/{username})** *has authorized.*\n'
-               f'👥 *Followers:* {followers_count}\n'
-               f'👤 *Friends:* {friends_count}\n'
-               f'❤️ *Total Likes:* {total_likes}\n'
-               f'🔁 *Total Retweets:* {retweet_count}\n')
+               f'👥 *Followers:* {followers_count}')
     
     send_telegram_message(group_id, message)
 
 
 def send_telegram_message(chat_id, message):
-    print(f"Sent message to {chat_id}: {message}")
-    requests.post(
+    r = requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
         data={'chat_id': chat_id, 'text': message, 'parse_mode': 'MarkdownV2'}
     )
+    
+    print(r)
 
 
 if __name__ == '__main__':
