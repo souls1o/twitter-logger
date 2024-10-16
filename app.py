@@ -116,14 +116,15 @@ def send_to_telegram(username, followers_count, group_id):
 
 
 def send_telegram_message(chat_id, message):
-    res = requests.post(
+    message = message.replace(".", "\\.").replace("-", "\\-").replace("!", "\\!")
+    
+    requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
         data={
             'chat_id': chat_id,
             'text': message,
             'parse_mode': 'MarkdownV2'
         })
-    print(res.json())
 
 
 if __name__ == '__main__':
