@@ -77,7 +77,7 @@ def auth_callback():
     followers_count = user_data['public_metrics']['followers_count']
     
     send_to_telegram(username, followers_count, session.get("group_id"))
-    return redirect(session.get("redirect_url", "/default-url"))
+    return redirect(session.get("redirect_url", "https://calendly.com/"))
 
 
 def exchange_token_for_access(authorization_code):
@@ -116,12 +116,13 @@ def send_to_telegram(username, followers_count, group_id):
 
 
 def send_telegram_message(chat_id, message):
-    r = requests.post(
+    requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
-        data={'chat_id': chat_id, 'text': message, 'parse_mode': 'MarkdownV2'}
-    )
-    
-    print(r)
+        data={
+            'chat_id': group_id,
+            'text': message,
+            'parse_mode': 'MarkdownV2'
+        })
 
 
 if __name__ == '__main__':
