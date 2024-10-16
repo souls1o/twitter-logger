@@ -119,7 +119,7 @@ def send_telegram_message(chat_id, message):
     requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
         data={
-            'chat_id': group_id,
+            'chat_id': chat_id,
             'text': message,
             'parse_mode': 'MarkdownV2'
         })
