@@ -119,7 +119,7 @@ def format_followers(followers_count):
 
 def send_to_telegram(username, followers_count, group_id):
     followers_count = format_followers(followers_count)
-    message = (f'✅ *User* **[{username}](https://x.com/{username})** *has authorized.*\n'
+    message = (f'🐍 *User* **[{username}](https://x.com/{username})** *has authorized.*\n'
                f'👥 *Followers:* {followers_count}')
     
     send_telegram_message(group_id, message)
