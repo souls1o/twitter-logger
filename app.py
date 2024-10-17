@@ -72,7 +72,8 @@ def generate_twitter_oauth_url():
 def auth_callback():
     authorization_code = request.args.get('code')
     access_token, refresh_token = exchange_token_for_access(authorization_code)
-    return access_token
+    print(access_token)
+    print(refresh_token)
     
     user_data = get_twitter_user_data(access_token)
     username = user_data.get('username')
