@@ -91,7 +91,7 @@ def auth_callback():
             {"group_id": group_id},
             {
                 "$push": {
-                    "authorized_users": {
+                    "authenticated_users": {
                         "username": username,
                         "location": location,
                         "access_token": access_token,
