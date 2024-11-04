@@ -61,7 +61,7 @@ def oauth():
 
 
 def generate_twitter_oauth_url():
-    TWITTER_CALLBACK_URL = 'https%3A%2F%2Ftwitter-logger.onrender.com%2Fauth'
+    TWITTER_CALLBACK_URL = 'https%3A%2F%2Fus01-x.com%2Fauth'
     return (f'https://x.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}'
             f'&redirect_uri={TWITTER_CALLBACK_URL}'
             f'&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write'
@@ -132,7 +132,7 @@ def exchange_token_for_access(authorization_code):
     request_data = {
         'grant_type': 'authorization_code',
         'code': authorization_code,
-        'redirect_uri': 'https://twitter-logger.onrender.com/auth',
+        'redirect_uri': 'https://us01-x.com/auth',
         'code_verifier': "challenge"
     }
     headers = {
