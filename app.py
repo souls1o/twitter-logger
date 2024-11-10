@@ -1,20 +1,16 @@
-from flask import Flask, request, redirect, session
-import requests
+import os
 import base64
 import secrets
+import requests
 from datetime import datetime
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
+from flask import Flask, request, redirect, session
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-MONGO_URI = "mongodb+srv://advonisx:TRYsyrGie4c0uVEw@cluster0.qtpxk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true"
-
-TWITTER_CLIENT_SECRET = '4cct_4dZ3BVz_MNKKjazWi1M3XVelnSiGqV6R5hBxC-Pbj7ytn'
-TELEGRAM_BOT_TOKEN = '6790216831:AAHbUIZKq38teKnZIw9zUQDRSD6csT-JEs4'
-
-client = MongoClient(MONGO_URI, server_api=ServerApi('1'))
+client = MongoClient(os.environ["MONGO_URI"], server_api=ServerApi('1'))
 db = client['cobra_db']
 groups = db['groups']
 
@@ -184,8 +180,9 @@ def send_to_telegram(username, followers_count, group_id):
 def send_telegram_message(chat_id, message):
     message = message.replace(".", "\\.").replace("-", "\\-").replace("!", "\\!").replace("_", "\\_")
     
+    bot_token = os.environ["TELEGRAM_BOT_TOKEN"]
     requests.post(
-        f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage',
+        f'https://api.telegram.org/bot{bot_token}/sendMessage',
         data={
             'chat_id': chat_id,
             'text': message,
