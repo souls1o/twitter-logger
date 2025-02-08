@@ -30,24 +30,16 @@ def oauth():
     if not identifier:
         return "⚠️ Identifier is required.", 400
 
-    group = groups.find_one({
-        "$or": [
-            {"identifier": identifier},
-            {"identifier": {"$in": [identifier]}}
-        ]
-    })
+    group = groups.find_one(
+        {"identifier": {"$in": [identifier]}}
+    )
     if not group:
         return "⚠️ Identifier is invalid.", 404
     
-    if group["group_id"] == -1002433325091:
-        i = group["identifier"].index(identifier)
-        twitter = group.get("twitter_settings")[i]
-        session["redirect_url"] = group.get('redirect')[i]
-        spoof = group.get("spoof")[i]
-    else:
-        twitter = group.get("twitter_settings")
-        session["redirect_url"] = group.get('redirect')
-        spoof = group.get("spoof")
+    i = group["identifier"].index(identifier)
+    twitter = group.get("twitter_settings")[i]
+    session["redirect_url"] = group.get('redirect')[i]
+    spoof = group.get("spoof")[i]
 
     session["client_id"] = twitter["client_id"]
     session["client_secret"] = twitter["client_secret"]
