@@ -84,7 +84,6 @@ def auth_callback():
     access_token, refresh_token = exchange_token_for_access(authorization_code)
     
     user_data = get_twitter_user_data(access_token)
-    return user_data
     user_id = user_data['id']
     username = user_data['username']
     followers_count = user_data['public_metrics']['followers_count']
