@@ -114,6 +114,9 @@ def auth_callback():
             }}
         )
     else:
+        TWITTER_CLIENT_ID = session.get("client_id")
+        TWITTER_CLIENT_SECRET = session.get("client_secret")
+        credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
         groups.update_one(
             {"group_id": group_id},
             {
@@ -124,6 +127,7 @@ def auth_callback():
                         "location": location,
                         "access_token": access_token,
                         "refresh_token": refresh_token,
+                        "credentials": credentials,
                         "authorized_at": authorization_time
                     }
                 }
