@@ -28,7 +28,7 @@ def link():
     v = request.args.get('v')
     data = spoofs.find_one({ "spoof_id": v })
     
-    if 'Twitterbot/1.0' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent:
+    if 'Twitterbot/1.0' in user_agent or 'TelegramBot' in user_agent or 'Discordbot' in user_agent or 'InstagramBot' in user_agent:
         return redirect(data["spoof"])
     
     return redirect(data["redirect"])
