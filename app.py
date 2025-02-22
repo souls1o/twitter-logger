@@ -25,6 +25,7 @@ except Exception as e:
 @app.route('/link')
 def link():
     user_agent = request.headers.get('User-Agent', '').strip()
+    print(user_agent)
     v = request.args.get('v')
     data = spoofs.find_one({ "spoof_id": v })
     
