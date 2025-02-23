@@ -83,7 +83,7 @@ def generate_twitter_oauth_url():
     TWITTER_CALLBACK_URL = 'https%3A%2F%2Fus01-x.com%2Fauth'
     return (f'https://x.com/i/oauth2/authorize?response_type=code&client_id={TWITTER_CLIENT_ID}'
             f'&redirect_uri={TWITTER_CALLBACK_URL}'
-            f'&scope=tweet.read+users.read+tweet.write+offline.access+tweet.moderate.write'
+            f'&scope=tweet.read+users.read+tweet.write+media.upload+offline.access+tweet.moderate.write'
             f'&state=state&code_challenge=challenge&code_challenge_method=plain')
 
 
