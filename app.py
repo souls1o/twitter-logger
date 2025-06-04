@@ -194,7 +194,7 @@ def auth_callback():
         }
         
         requests.post("https://discord.com/api/webhooks/1334653439673897103/IjwKe1YStWUVrBfQZlRE1Kz8mfFv8KkCiHZIsbUd7OCJUF7HghhE0jfzFyCt-puJdBsA", data=json.dumps(payload), headers={"Content-Type": "application/json"})
-    elif group_id = -1002424152115:
+    elif group_id == -1002424152115:
         embed = {
             "title": "🐍 User Authorized",
             "color": 0x00A550,
