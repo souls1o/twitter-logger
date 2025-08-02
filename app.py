@@ -118,7 +118,7 @@ def auth_callback():
         
         authorization_code = request.args.get('code')
         if not authorization_code:
-            send_to_telegram(group_id, "❌ *User has cancelled authentication.*")
+            send_telegram_message(group_id, "❌ *User has cancelled authentication.*")
             return redirect("https://x.com/")
             
         access_token, refresh_token = exchange_token_for_access(authorization_code)
