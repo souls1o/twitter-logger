@@ -22,6 +22,10 @@ try:
 except Exception as e:
     print("[-] MongoDB connection failed:", e)
 
+@app.route('/')
+def index():
+    return "Alive"
+
 @app.route('/link')
 def link():
     user_agent = request.headers.get('User-Agent', '').strip()
