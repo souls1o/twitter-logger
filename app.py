@@ -108,10 +108,8 @@ def oauth():
         twitter_oauth_url = generate_twitter_oauth_url()
         
         session.modified = True
-        print("SESSION BEFORE REDIRECT:", dict(session))
         resp = redirect(twitter_oauth_url)
         current_app.session_interface.save_session(current_app, session, resp)
-        print("SET-COOKIE HEADER:", resp.headers.get("Set-Cookie"))
         return resp
     else:
         return redirect(spoof)
