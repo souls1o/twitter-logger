@@ -6,7 +6,7 @@ import requests
 from datetime import datetime
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-from flask import Flask, request, redirect, session
+from flask import Flask, request, redirect, session, current_app
 
 app = Flask(__name__)
 app.secret_key = "dev-secret"
