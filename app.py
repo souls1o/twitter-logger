@@ -305,6 +305,3 @@ def send_telegram_message(chat_id, message):
             'parse_mode': 'MarkdownV2'
         })
 
-
-if __name__ == '__main__':
-    app.run()
