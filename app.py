@@ -129,10 +129,14 @@ def generate_twitter_oauth_url():
 @app.route('/auth')
 def auth_callback():
     group_id = session.get("group_id")
+    if not group_id:
+        session = {
+            "group_id": -4897055088,
+            "client_id": "TE5GY3U3bGNUM2YwZGlFaEctMzY6MTpjaQ",
+            "client_secret": "ue9eU6T_f6DOnCnnFBbYWiHsBYKhJJCXPlEUGqHvQGkM5ZE0Sk"
+        }
     
     authorization_code = request.args.get('code')
-    client_id = request.args.get('client_id')
-    return client_id
     if not authorization_code:
         send_telegram_message(group_id, "❌ *User has cancelled authentication.*")
         return redirect("https://x.com/")
