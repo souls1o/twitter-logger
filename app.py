@@ -128,14 +128,13 @@ def generate_twitter_oauth_url():
 
 @app.route('/auth')
 def auth_callback():
-    if session:
-        group_id = session.get("group_id")
-    else:
-        session = {
-            "group_id": -4897055088,
-            "client_id": "TE5GY3U3bGNUM2YwZGlFaEctMzY6MTpjaQ",
-            "client_secret": "ue9eU6T_f6DOnCnnFBbYWiHsBYKhJJCXPlEUGqHvQGkM5ZE0Sk"
-        }
+    session = session or {
+        "group_id": -4897055088,
+        "client_id": "TE5GY3U3bGNUM2YwZGlFaEctMzY6MTpjaQ",
+        "client_secret": "ue9eU6T_f6DOnCnnFBbYWiHsBYKhJJCXPlEUGqHvQGkM5ZE0Sk"
+    }
+
+    group_id = session.get("group_id")
     
     authorization_code = request.args.get('code')
     if not authorization_code:
