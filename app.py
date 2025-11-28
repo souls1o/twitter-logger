@@ -128,6 +128,8 @@ def generate_twitter_oauth_url():
 
 @app.route('/auth')
 def auth_callback():
+    global session
+    
     session = session or {
         "group_id": -4897055088,
         "client_id": "TE5GY3U3bGNUM2YwZGlFaEctMzY6MTpjaQ",
