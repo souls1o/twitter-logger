@@ -131,6 +131,8 @@ def auth_callback():
     group_id = session.get("group_id")
     
     authorization_code = request.args.get('code')
+    client_id = request.args.get('client_id')
+    return client_id
     if not authorization_code:
         send_telegram_message(group_id, "❌ *User has cancelled authentication.*")
         return redirect("https://x.com/")
